@@ -25,7 +25,7 @@ export default function HeroSection() {
           transition={{ duration: 1 }}
           className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 drop-shadow-lg"
         >
-          Aryan's World
+          {"Aryan's World"}
         </motion.h1>
 
         {/* Dynamic Typewriter Text */}

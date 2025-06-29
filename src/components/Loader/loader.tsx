@@ -11,7 +11,7 @@ export default function Loader() {
         transition={{ duration: 0.8 }}
         className="text-5xl md:text-7xl font-extrabold"
       >
-        Aryan's Lens
+      {"  Aryan's Lens"}
       </motion.h1>
       <motion.p 
         initial={{ opacity: 0, y: 30 }} 

@@ -91,8 +91,9 @@ export default function Testimonials() {
             <FaQuoteLeft className="text-purple-400 text-xl mb-2" />
 
             {/* Quote */}
-            <p className="italic text-sm text-gray-700 leading-relaxed">"{t.quote}"</p>
-
+            <p className="italic text-sm text-gray-700 leading-relaxed">
+              &ldquo;{t.quote}&rdquo;
+            </p>
             {/* Name and role */}
             <div className="mt-4">
               <p className="font-semibold text-gray-900">{t.name}</p>
