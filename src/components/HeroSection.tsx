@@ -35,7 +35,8 @@ export default function HeroSection() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="mt-4 text-xl md:text-2xl text-zinc-200"
         >
-          I'm{' '}
+         I&rsquo;m{' '}
+
           <span className="text-pink-400 font-semibold">
             <Typewriter
               words={['a Photographer', 'a Filmmaker', 'a Storyteller', 'Aryan']}
