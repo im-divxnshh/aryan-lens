@@ -74,7 +74,7 @@ function isEmbedUrl(url: string) {
 }
 
 // 👇 LazyVideo Component
-function LazyVideo({ src, title }: { src: string; title: string }) {
+function LazyVideo({ src }: { src: string; title: string }) {
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.25,
