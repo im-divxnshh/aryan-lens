@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Image, { StaticImageData } from 'next/image';
+import { useInView } from 'react-intersection-observer';
 
 import Image1 from '@/assets/photos/1.jpg';
 import Image2 from '@/assets/photos/2.jpg';
@@ -72,6 +73,34 @@ function isEmbedUrl(url: string) {
   return url.includes('youtube.com') || url.includes('vimeo.com');
 }
 
+// 👇 LazyVideo Component
+function LazyVideo({ src, title }: { src: string; title: string }) {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.25,
+  });
+
+  return (
+    <div ref={ref} className="w-full h-full">
+      {inView ? (
+        <video
+          src={src}
+          muted
+          autoPlay
+          loop
+          playsInline
+          preload="metadata"
+          className="w-full h-full object-contain"
+        />
+      ) : (
+        <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-sm text-zinc-500">
+          Loading video...
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Showcase() {
   const [activeTab, setActiveTab] = useState<'photography' | 'film'>('photography');
 
@@ -124,14 +153,7 @@ export default function Showcase() {
                       className="w-full h-full absolute top-0 left-0 object-contain"
                     />
                   ) : (
-                    <video
-                      src={project.src}
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                      className="w-full h-full object-contain"
-                    />
+                    <LazyVideo src={project.src} title={project.title} />
                   )
                 ) : (
                   <Image
