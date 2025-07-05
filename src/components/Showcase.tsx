@@ -73,11 +73,10 @@ function isEmbedUrl(url: string) {
   return url.includes('youtube.com') || url.includes('vimeo.com');
 }
 
-// 👇 LazyVideo Component
-function LazyVideo({ src }: { src: string; title: string }) {
+function LazyVideo({ src, title }: { src: string; title: string }) {
   const { ref, inView } = useInView({
     triggerOnce: true,
-    threshold: 0.25,
+    threshold: 0.05, // trigger faster
   });
 
   return (
@@ -89,60 +88,69 @@ function LazyVideo({ src }: { src: string; title: string }) {
           autoPlay
           loop
           playsInline
-          preload="metadata"
-          className="w-full h-full object-contain"
+          preload="auto"
+          className="w-full h-full object-cover rounded-2xl transition-all duration-500 ease-in"
         />
       ) : (
-        <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-sm text-zinc-500">
-          Loading video...
+        <div className="w-full h-full aspect-[9/16] bg-zinc-900 flex items-center justify-center text-sm text-zinc-500">
+          Preparing video...
         </div>
       )}
     </div>
   );
 }
 
+
 export default function Showcase() {
   const [activeTab, setActiveTab] = useState<'photography' | 'film'>('photography');
 
   return (
-    <section className="py-20 px-4 bg-black text-white">
-      <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-transparent bg-clip-text">
-        Projects Showcase
-      </h2>
+    <section className="relative z-10 min-h-screen px-6 py-20 bg-gradient-to-br from-black via-zinc-900 to-black text-white overflow-hidden">
+      <div className="text-center mb-12">
+        <h2 className="text-5xl font-extrabold tracking-wide bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600 text-transparent bg-clip-text drop-shadow-xl">
+          ⚡ Showcase Portal
+        </h2>
+        <p className="text-zinc-400 mt-2 text-lg">Visual experience in Photography & Film</p>
+      </div>
 
       {/* Tabs */}
-      <div className="flex justify-center mb-10 space-x-6">
-        {(['photography', 'film'] as const).map((type) => (
-          <button
-            key={type}
-            onClick={() => setActiveTab(type)}
-            className={`px-6 py-2 rounded-full border-2 font-semibold transition-all cursor-pointer ${
-              activeTab === type
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-transparent shadow-lg scale-105'
-                : 'border-purple-500 text-purple-300 hover:bg-purple-500/10'
-            }`}
-          >
-            {type.charAt(0).toUpperCase() + type.slice(1)}
-          </button>
-        ))}
+      <div className="flex justify-center mb-16">
+        <div className="flex space-x-10 border-b border-zinc-700 pb-2">
+          {(['photography', 'film'] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setActiveTab(type)}
+              className={`text-lg font-semibold relative transition-all duration-300 ease-in-out cursor-pointer ${activeTab === type ? 'text-cyan-400' : 'text-zinc-400 hover:text-fuchsia-400'
+                }`}
+            >
+              {type.toUpperCase()}
+              {activeTab === type && (
+                <motion.div
+                  layoutId="underline"
+                  className="absolute left-0 -bottom-1 w-full h-[2px] bg-gradient-to-r from-cyan-400 to-fuchsia-500"
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
         <AnimatePresence mode="wait">
           {allProjects[activeTab].map((project, index) => (
             <motion.div
               key={`${project.title}-${index}`}
-              initial={{ rotateY: 180, opacity: 0 }}
-              animate={{ rotateY: 0, opacity: 1 }}
-              exit={{ rotateY: -180, opacity: 0 }}
-              transition={{ duration: 0.8, ease: 'easeInOut', delay: index * 0.1 }}
-              className="relative group overflow-hidden rounded-2xl shadow-xl bg-gray-900"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -40 }}
+              transition={{ duration: 0.5, delay: index * 0.05 }}
+              whileHover={{ scale: 1.02 }}
+              className="bg-white/5 border border-white/10 backdrop-blur-xl p-3 rounded-3xl relative overflow-hidden shadow-xl group transition-all duration-300 cursor-pointer"
             >
               <div
-                className={`relative w-full overflow-hidden border border-purple-500 rounded-2xl bg-black ${
-                  project.type === 'video' ? 'aspect-[9/16]' : 'aspect-video'
-                }`}
+                className={`relative w-full overflow-hidden rounded-2xl border border-zinc-800 shadow-inner ${project.type === 'video' ? 'aspect-[9/16]' : 'aspect-[4/3]'
+                  }`}
               >
                 {project.type === 'video' ? (
                   isEmbedUrl(project.src) ? (
@@ -150,7 +158,7 @@ export default function Showcase() {
                       src={project.src}
                       allow="autoplay; fullscreen"
                       allowFullScreen
-                      className="w-full h-full absolute top-0 left-0 object-contain"
+                      className="w-full h-full absolute top-0 left-0 object-contain rounded-2xl"
                     />
                   ) : (
                     <LazyVideo src={project.src} title={project.title} />
@@ -160,14 +168,25 @@ export default function Showcase() {
                     src={project.src}
                     alt={project.title}
                     fill
-                    className="object-cover rounded-2xl"
+                    loading="lazy"
+                    placeholder="blur"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-contain rounded-2xl transition-transform duration-500"
                   />
                 )}
               </div>
 
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent px-4 py-3 opacity-0 group-hover:opacity-100 transition-all">
-                <p className="text-white font-medium text-lg">{project.title}</p>
+
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <p className="font-semibold text-lg">{project.title}</p>
               </div>
+
+              {/* Hover glow */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 0.08 }}
+                className="absolute inset-0 bg-cyan-400 blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none"
+              />
             </motion.div>
           ))}
         </AnimatePresence>

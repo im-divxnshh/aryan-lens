@@ -1,0 +1,17 @@
+.animate-bg-pan {
+  animation: gradientPan 14s ease-in-out infinite alternate;
+}
+@keyframes gradientPan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+
+.animate-neon-glow {
+  box-shadow: 0 0 16px 4px #a18fff, 0 0 8px #38d3fa;
+  animation: neonGlow 1.5s ease-in-out infinite alternate;
+}
+@keyframes neonGlow {
+  0% { box-shadow: 0 0 12px #38d3fa; }
+  100% { box-shadow: 0 0 24px #f64f59, 0 0 40px #a18fff; }
+}
