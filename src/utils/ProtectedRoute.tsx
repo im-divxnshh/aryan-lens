@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     const [authorized, setAuthorized] = useState(false);
     const [passwordInput, setPasswordInput] = useState('');
 
-    const PASSWORD = process.env.NEXT_PUBLIC_ROUTE_PASSWORD || 'secret123'; // set in .env
+    const PASSWORD = process.env.NEXT_PUBLIC_ROUTE_PASSWORD || 'hacker'; // set in .env
 
     useEffect(() => {
         const stored = sessionStorage.getItem('route_auth');
