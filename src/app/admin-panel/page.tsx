@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import ProtectedRoute from '@/utils/ProtectedRoute';
 import Image from 'next/image';
+import { DragEndEvent } from '@dnd-kit/core';
 
 type Media = {
     id: string;
@@ -262,14 +263,20 @@ export default function AdminPage() {
 
 
 
-    const dragEnd = async (e: any) => {
+    const dragEnd = async (e: DragEndEvent) => {
         const oldIndex = media.findIndex(m => m.id === e.active.id);
-        const newIndex = media.findIndex(m => m.id === e.over.id);
+        const newIndex = media.findIndex(m => m.id === e.over?.id); // Optional chaining because `e.over` can be null
+
         if (oldIndex < 0 || newIndex < 0) return;
+
         const reordered = arrayMove(media, oldIndex, newIndex);
         setMedia(reordered);
+
         const batch = writeBatch(db);
-        reordered.forEach((m, i) => batch.update(doc(db, tab, m.id), { position: i }));
+        reordered.forEach((m, i) => {
+            batch.update(doc(db, tab, m.id), { position: i });
+        });
+
         await batch.commit();
     };
 
