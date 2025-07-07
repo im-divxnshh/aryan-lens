@@ -8,7 +8,7 @@ import {
 import { storage, db } from '@/utils/firebase';
 import Swal from 'sweetalert2';
 import {
-    UploadCloud, Image as ImageIcon, Video, Loader2, Trash2, Pencil, Eye, EyeOff, Move
+    UploadCloud,   Loader2, Trash2, Pencil, Eye, EyeOff, Move
 } from 'lucide-react';
 import {
     DndContext, closestCenter, PointerSensor, useSensor, useSensors

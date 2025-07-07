@@ -16,7 +16,7 @@ type Media = {
   position: number;
 };
 
-function LazyVideo({ src, title }: { src: string; title: string }) {
+function LazyVideo({ src }: { src: string; title: string }) {
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.05,
