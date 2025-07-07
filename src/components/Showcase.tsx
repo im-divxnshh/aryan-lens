@@ -1,82 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import Image, { StaticImageData } from 'next/image';
 import { useInView } from 'react-intersection-observer';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import Image from 'next/image';
+import { db } from '@/utils/firebase';
 
-import Image1 from '@/assets/photos/1.jpg';
-import Image2 from '@/assets/photos/2.jpg';
-import Image3 from '@/assets/photos/3.jpg';
-import Image4 from '@/assets/photos/4.jpg';
-import Image5 from '@/assets/photos/5.jpg';
-import Image6 from '@/assets/photos/6.jpg';
-
-type PhotoProject = {
-  src: StaticImageData;
+type Media = {
+  id: string;
   title: string;
-  type?: 'photo';
-};
-
-type VideoProject = {
   src: string;
-  title: string;
-  type: 'video';
+  type: 'photo' | 'video';
+  visible: boolean;
+  position: number;
 };
 
-type Project = PhotoProject | VideoProject;
-
-const allProjects: Record<'photography' | 'film', Project[]> = {
-  photography: [
-    { src: Image1, title: 'Ganesh Ji' },
-    { src: Image2, title: 'Temple Vibes' },
-    { src: Image3, title: 'Kids Bliss' },
-    { src: Image4, title: 'Kids Era' },
-    { src: Image5, title: 'Pets Blossom' },
-    { src: Image6, title: 'Outside Vibe' },
-  ],
-  film: [
-    {
-      src: 'https://firebasestorage.googleapis.com/v0/b/vr-study-group.appspot.com/o/aryan%20videos%20website%2FThe%20Diary.mp4?alt=media&token=cb423ecd-f8ed-4e43-bc38-6c81aa8c5962',
-      title: 'The Diary - Short Film',
-      type: 'video',
-    },
-    {
-      src: 'https://firebasestorage.googleapis.com/v0/b/vr-study-group.appspot.com/o/aryan%20videos%20website%2F2.mp4?alt=media&token=317220cb-390d-405e-bdd0-9cf523bfc1bf',
-      title: 'Portrait Video',
-      type: 'video',
-    },
-    {
-      src: 'https://firebasestorage.googleapis.com/v0/b/vr-study-group.appspot.com/o/aryan%20videos%20website%2F3.mp4?alt=media&token=d97a0017-4085-4f1b-bf07-444dbae16b7b',
-      title: 'Farewell 2025',
-      type: 'video',
-    },
-    {
-      src: 'https://firebasestorage.googleapis.com/v0/b/vr-study-group.appspot.com/o/aryan%20videos%20website%2F4.mp4?alt=media&token=20e7e475-3333-49cb-9e9f-e785b35f17e2',
-      title: 'Event Cover - 1',
-      type: 'video',
-    },
-    {
-      src: 'https://firebasestorage.googleapis.com/v0/b/vr-study-group.appspot.com/o/aryan%20videos%20website%2F5.mp4?alt=media&token=d6a7e702-5d5f-46c4-bcf0-7d7c778d2248',
-      title: 'Event Cover - 2',
-      type: 'video',
-    },
-    {
-      src: 'https://firebasestorage.googleapis.com/v0/b/vr-study-group.appspot.com/o/aryan%20videos%20website%2F1.mp4?alt=media&token=1a94e291-a67c-4217-9edf-a661c094fd67',
-      title: 'Gopal Sons Client',
-      type: 'video',
-    },
-  ],
-};
-
-function isEmbedUrl(url: string) {
-  return url.includes('youtube.com') || url.includes('vimeo.com');
-}
-
-function LazyVideo({ src }: { src: string; title: string }) {
+function LazyVideo({ src, title }: { src: string; title: string }) {
   const { ref, inView } = useInView({
     triggerOnce: true,
-    threshold: 0.05, // trigger faster
+    threshold: 0.05,
   });
 
   return (
@@ -100,9 +43,22 @@ function LazyVideo({ src }: { src: string; title: string }) {
   );
 }
 
-
 export default function Showcase() {
-  const [activeTab, setActiveTab] = useState<'photography' | 'film'>('photography');
+  const [activeTab, setActiveTab] = useState<'photo' | 'video'>('photo');
+  const [mediaItems, setMediaItems] = useState<Media[]>([]);
+
+  useEffect(() => {
+    const fetchMedia = async () => {
+      const q = query(collection(db, activeTab), orderBy('position'));
+      const snapshot = await getDocs(q);
+      const items: Media[] = snapshot.docs
+        .map(doc => ({ ...(doc.data() as Media), id: doc.id }))
+        .filter(item => item.visible);
+      setMediaItems(items);
+    };
+
+    fetchMedia();
+  }, [activeTab]);
 
   return (
     <section className="relative z-10 min-h-screen px-6 py-20 bg-gradient-to-br from-black via-zinc-900 to-black text-white overflow-hidden">
@@ -116,7 +72,7 @@ export default function Showcase() {
       {/* Tabs */}
       <div className="flex justify-center mb-16">
         <div className="flex space-x-10 border-b border-zinc-700 pb-2">
-          {(['photography', 'film'] as const).map((type) => (
+          {(['photo', 'video'] as const).map(type => (
             <button
               key={type}
               onClick={() => setActiveTab(type)}
@@ -138,9 +94,9 @@ export default function Showcase() {
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
         <AnimatePresence mode="wait">
-          {allProjects[activeTab].map((project, index) => (
+          {mediaItems.map((item, index) => (
             <motion.div
-              key={`${project.title}-${index}`}
+              key={`${item.id}-${index}`}
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -40 }}
@@ -149,36 +105,25 @@ export default function Showcase() {
               className="bg-white/5 border border-white/10 backdrop-blur-xl p-3 rounded-3xl relative overflow-hidden shadow-xl group transition-all duration-300 cursor-pointer"
             >
               <div
-                className={`relative w-full overflow-hidden rounded-2xl border border-zinc-800 shadow-inner ${project.type === 'video' ? 'aspect-[9/16]' : 'aspect-[4/3]'
+                className={`relative w-full overflow-hidden rounded-2xl border border-zinc-800 shadow-inner ${item.type === 'video' ? 'aspect-[9/16]' : 'aspect-[4/3]'
                   }`}
               >
-                {project.type === 'video' ? (
-                  isEmbedUrl(project.src) ? (
-                    <iframe
-                      src={project.src}
-                      allow="autoplay; fullscreen"
-                      allowFullScreen
-                      className="w-full h-full absolute top-0 left-0 object-contain rounded-2xl"
-                    />
-                  ) : (
-                    <LazyVideo src={project.src} title={project.title} />
-                  )
+                {item.type === 'video' ? (
+                  <LazyVideo src={item.src} title={item.title} />
                 ) : (
                   <Image
-                    src={project.src}
-                    alt={project.title}
+                    src={item.src}
+                    alt={item.title}
                     fill
                     loading="lazy"
-                    placeholder="blur"
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-contain rounded-2xl transition-transform duration-500"
                   />
                 )}
               </div>
 
-
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                <p className="font-semibold text-lg">{project.title}</p>
+                <p className="font-semibold text-lg">{item.title}</p>
               </div>
 
               {/* Hover glow */}
