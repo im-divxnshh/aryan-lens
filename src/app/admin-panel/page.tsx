@@ -18,6 +18,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ProtectedRoute from '@/utils/ProtectedRoute';
+import Image from 'next/image';
+
 type Media = {
     id: string;
     title: string;
@@ -60,7 +62,7 @@ function SortableItem({
             </div>
             <div className="w-20 h-20 rounded-xl overflow-hidden border border-zinc-800">
                 {item.type === 'photo' ? (
-                    <img src={item.src} alt={item.title} className="object-cover w-full h-full" />
+                    <Image src={item.src} alt={item.title} className="object-cover w-full h-full" />
                 ) : (
                     <video src={item.src} muted loop className="object-cover w-full h-full" />
                 )}
