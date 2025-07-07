@@ -8,7 +8,7 @@ import {
 import { storage, db } from '@/utils/firebase';
 import Swal from 'sweetalert2';
 import {
-    UploadCloud,   Loader2, Trash2, Pencil, Eye, EyeOff, Move
+    UploadCloud, Loader2, Trash2, Pencil, Eye, EyeOff, Move
 } from 'lucide-react';
 import {
     DndContext, closestCenter, PointerSensor, useSensor, useSensors
@@ -145,7 +145,7 @@ export default function AdminPage() {
         try {
             const storageRef = ref(storage, `aryan/${tab}/${file.name}`);
             const task = uploadBytesResumable(storageRef, file);
-            const emojiBase = [...emojis]; // fixed emoji list
+            const emojiBase = [...emojis];
 
             task.on(
                 'state_changed',
@@ -158,7 +158,6 @@ export default function AdminPage() {
                     const bar = emojiBase.slice(0, filled).join('') + '⬛'.repeat(totalBars - filled);
                     setEmojiBar(bar);
 
-                    // Update SweetAlert content
                     const emojiDiv = Swal.getHtmlContainer()?.querySelector('#emoji-progress');
                     const textDiv = Swal.getHtmlContainer()?.querySelector('#percent-text');
                     if (emojiDiv) emojiDiv.textContent = bar;
@@ -166,7 +165,7 @@ export default function AdminPage() {
                 },
                 error => {
                     console.error('Upload error:', error);
-                    Swal.fire('Upload Error', error.message, 'error');
+                    Swal.fire('Upload Error', (error as Error).message, 'error');
                     setUploading(false);
                     setProgress(0);
                     setEmojiBar('');
@@ -197,7 +196,6 @@ export default function AdminPage() {
 
                     Swal.fire('Uploaded! 🎉', 'Your masterpiece is online.', 'success');
 
-                    // Reset form
                     if (fileInputRef.current) fileInputRef.current.value = '';
                     setFile(null);
                     setTitle('');
@@ -206,16 +204,14 @@ export default function AdminPage() {
                     setUploading(false);
                 }
             );
-        } catch (err: any) {
-            Swal.fire('Upload Failed', err.message, 'error');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            Swal.fire('Upload Failed', message, 'error');
             setUploading(false);
             setProgress(0);
             setEmojiBar('');
         }
     };
-
-
-
 
 
     const toggle = async (item: Media) => {
